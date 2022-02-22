@@ -79,5 +79,6 @@ while True:
     imgStack = stackImages(0.8,([img,imgCanny],
                                 [imgDil,imgContour]))
     cv2.imshow("Result", imgStack)
+    print(imgStack)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
