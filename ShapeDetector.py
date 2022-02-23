@@ -68,7 +68,16 @@ def getContours(img, imgContour):
         if area > areaMin:
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
             peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+            approx = cv2.approxPolyDP(cnt, 0.03 * peri, True)
+            print(approx)
+            # compute the center of the contour
+            M = cv2.moments(cnt)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            # draw the contour and center of the shape on the image
+            cv2.drawContours(imgContour, [cnt], -1, (0, 255, 0), 2)
+            cv2.circle(imgContour, (cX, cY), 7, (255, 255, 255), -1)
+            cv2.putText(imgContour, "center", (cX - 20, cY - 20),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             # print(len(approx))
             x, y, w, h = cv2.boundingRect(approx)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)

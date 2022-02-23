@@ -7,21 +7,22 @@
   <body>
     <div>
       <button onclick="openMedia()">开启摄像头</button>
+      <button onclick="closeMedia()">关闭摄像头</button><br /><br />
       <button onclick="takePhoto()">拍照</button><br /><br />
       <video
         style="display: none"
         class="src-video"
-        width="500px"
-        height="500px"
+        width="1200px"
+        height="900px"
         autoplay="autoplay"
       ></video>
       <canvas
         id="canvas"
-        width="500px"
-        height="500px"
+        width="1200px"
+        height="900px"
         style="display: none"
       ></canvas>
-      <img src="" width="500px" height="500px" class="photo" />
+      <img src="" width="1200px" height="900px" class="photo" />
     </div>
 
     <script type="text/javascript">
@@ -52,7 +53,7 @@
         srcVideo.style.display = 'block'
         let constraints = {
           audio: false, //音频轨道
-          video: { width: 500, height: 500 } //视频轨道
+          video: true //视频轨道
         }
         let mediaPromise = navigator.mediaDevices.getUserMedia(constraints)
         mediaPromise
@@ -74,7 +75,7 @@
         let canvas = document.querySelector('#canvas')
         //获取 `canvas`元素，根据`srcVideo`中的数据进行图片绘制 `ctx.drawImage()`；
         let ctx = canvas.getContext('2d')
-        ctx.drawImage(srcVideo, 0, 0, 500, 500)
+        ctx.drawImage(srcVideo, 0, 0, 1200, 900)
         //将 `canvas`绘制的图片信息，展示在 `img`标签中；
         photo.src = canvas.toDataURL()
         // closeMedia()
@@ -86,6 +87,7 @@
           track.stop()
         })
         srcVideo.style.display = 'none'
+        clearTimeout(timer)
       }
       openMedia()
       ///////////////////////////////////////
@@ -93,12 +95,12 @@
         if (webcamOpen) {
           let canvas = document.querySelector('#canvas')
           let ctx = canvas.getContext('2d')
-          ctx.drawImage(srcVideo, 0, 0, 500, 500)
+          ctx.drawImage(srcVideo, 0, 0, 1200, 900)
           var data = canvas.toDataURL().split(',')
           console.log(data[0])
           ws.send(data[1])
         }
-      }, 200)
+      }, 1000)
     </script>
   </body>
 </html>
