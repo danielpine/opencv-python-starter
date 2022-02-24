@@ -63,29 +63,27 @@ def getContours(img, imgContour):
     contours, hierarchy = cv2.findContours(
         img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     for cnt in contours:
-        area = cv2.contourArea(cnt)
-        areaMin = 2671
-        if area > areaMin:
+        # area = cv2.contourArea(cnt)
+        peri = cv2.arcLength(cnt, True)
+        approx = cv2.approxPolyDP(cnt, 0.03 * peri, True)
+        # print(approx)
+        # compute the center of the contour
+        M = cv2.moments(cnt)
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+        x, y, w, h = cv2.boundingRect(approx)
+        area = w*h
+        minArea = 20000
+        maxArea = 50000
+        if area > minArea and area < maxArea and w/h < 2 and w/h > 0.5:
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
-            peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.03 * peri, True)
-            print(approx)
-            # compute the center of the contour
-            M = cv2.moments(cnt)
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
-            # draw the contour and center of the shape on the image
-            cv2.drawContours(imgContour, [cnt], -1, (0, 255, 0), 2)
+            # draw the center of the shape on the image
             cv2.circle(imgContour, (cX, cY), 7, (255, 255, 255), -1)
-            cv2.putText(imgContour, "center", (cX - 20, cY - 20),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-            # print(len(approx))
-            x, y, w, h = cv2.boundingRect(approx)
             cv2.rectangle(imgContour, (x, y), (x + w, y + h), (0, 255, 0), 5)
-
-            cv2.putText(imgContour, "Points: " + str(len(approx)), (x + w + 20, y + 20), cv2.FONT_HERSHEY_COMPLEX, .7,
-                        (0, 255, 0), 2)
-            cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 20, y + 45), cv2.FONT_HERSHEY_COMPLEX, 0.7,
-                        (0, 255, 0), 2)
+            cv2.putText(imgContour, "P: " + str(len(approx)), (x +
+                        20, y + 20), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
+            cv2.putText(imgContour, "A: " + str(int(area)), (x + 20,
+                        y + 45), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
 
 
 def image_to_base64(image_np):
@@ -115,5 +113,6 @@ def detect(base64_code):
     kernel = np.ones((5, 5))
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
     getContours(imgDil, imgContour)
-    imgStack = stackImages(0.8, ([img, imgCanny],  [imgDil, imgContour]))
+    # imgStack = stackImages(0.8, ([img, imgCanny],  [imgDil, imgContour]))
+    imgStack = stackImages(0.5,  ([imgContour]))
     return image_to_base64(imgStack)

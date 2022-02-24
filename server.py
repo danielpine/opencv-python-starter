@@ -1,3 +1,4 @@
+import imp
 import threading
 from flask import (Flask, Response, escape, jsonify, redirect, request,
                    session, url_for)
@@ -9,7 +10,7 @@ from ShapeDetector import detect
 app = Flask(__name__, static_url_path='')
 app.config['DEBUG'] = True
 user_socket_list = []
-
+import time
 
 @app.route('/socket')
 def socket():
@@ -22,7 +23,10 @@ def socket():
     while True:
         try:
             msg = user_socket.receive()
-            result=detect(msg)
+            print(len(msg))
+            start=time.time()
+            result = detect(msg)
+            print("time:"+str(time.time()-start))
             user_socket.send(result)
         except Exception as e:
             e.__traceback__()
@@ -30,7 +34,8 @@ def socket():
                 user_socket_list.remove(user_socket)
             return ''
 
+
 if __name__ == "__main__":
-    srv = WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler )
+    srv = WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler)
     print(u'Starting WSGIServer...')
     srv.serve_forever()
