@@ -1,4 +1,5 @@
 import base64
+import math
 import cv2
 import cv2
 import numpy as np
@@ -73,7 +74,7 @@ def getContours(img, imgContour):
         cY = int(M["m01"] / M["m00"])
         x, y, w, h = cv2.boundingRect(approx)
         area = w*h
-        minArea = 20000
+        minArea = 16000
         maxArea = 50000
         if area > minArea and area < maxArea and w/h < 2 and w/h > 0.5:
             cv2.drawContours(imgContour, cnt, -1, (255, 0, 255), 7)
@@ -83,8 +84,25 @@ def getContours(img, imgContour):
             cv2.putText(imgContour, "P: " + str(len(approx)), (x +
                         20, y + 20), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
             cv2.putText(imgContour, "A: " + str(int(area)), (x + 20,
-                        y + 45), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
+                        y + 42), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
+            cv2.putText(imgContour, "S: " + detectShape((cX,cY),approx), (x + 20,
+                        y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
 
+def detectShape(center,ponits):
+    if len(ponits)<=6:
+        return 'rect'
+    else:
+        #compute the distance from every points to the center
+        ds=[((p[0][0]-center[0])**2+(p[0][1]-center[1])**2)**0.5 for p in ponits]
+        mins=min(ds)
+        maxs=max(ds) 
+        #compute the delta  
+        delta=(maxs-mins)*2/(maxs+mins)
+        print(delta)    
+        if delta>0.2:
+            return 'eclipse'
+        else:    
+            return 'circle'
 
 def image_to_base64(image_np):
     image = cv2.imencode('.jpg', image_np)[1]
@@ -114,5 +132,5 @@ def detect(base64_code):
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
     getContours(imgDil, imgContour)
     # imgStack = stackImages(0.8, ([img, imgCanny],  [imgDil, imgContour]))
-    imgStack = stackImages(0.5,  ([imgContour]))
+    imgStack = stackImages(0.8,  ([imgContour]))
     return image_to_base64(imgStack)
