@@ -89,7 +89,7 @@ def getContours(img, imgContour):
                         y + 65), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
 
 def detectShape(center,ponits):
-    if len(ponits)<=6:
+    if len(ponits)<=5:
         return 'rect'
     else:
         #compute the distance from every points to the center
